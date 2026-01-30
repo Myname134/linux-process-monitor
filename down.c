@@ -4,6 +4,13 @@
 #include <stdlib.h>
 #include <pwd.h>
 #include <sys/types.h>
+#define CLR_RESET   "\033[0m"
+#define CLR_RED     "\033[31m"
+#define CLR_GREEN   "\033[32m"
+#define CLR_YELLOW  "\033[33m"
+#define CLR_BLUE    "\033[34m"
+#define CLR_MAGENTA "\033[35m"
+#define CLR_CYAN    "\033[36m"
 
 int main() {
     struct dirent *entry;
@@ -22,7 +29,7 @@ int main() {
     }
 
     fprintf(pager, "\033[H\033[J");
-
+ 
     fprintf(pager,
         "%-6s %-8s %-6s %-8s %-8s %s\n",
         "PID", "USER", "STATE", "MEM(KB)", "THREADS", "NAME"
@@ -76,11 +83,24 @@ int main() {
 
         fclose(f);
 
+        const char *state_color = CLR_RESET;
+
+        switch (state) {
+        case 'R': state_color = CLR_GREEN;   break;
+        case 'S': state_color = CLR_BLUE;    break;
+        case 'D': state_color = CLR_YELLOW;  break;
+        case 'T': state_color = CLR_MAGENTA; break;
+        case 'Z': state_color = CLR_RED;     break;
+        case 'I': state_color = CLR_CYAN;    break;
+        default:  state_color = CLR_RESET;   break;
+        }
+
+
         fprintf(pager,
-            "%-6d %-8s %-5c %-8ld %-8d %s\n",
+            "%-6d %-8s %s%-5c%s %-8ld %-8d %s\n",
             pid,
             user,
-            state,
+            state_color, state, CLR_RESET,
             mem_kb,
             threads,
             name
